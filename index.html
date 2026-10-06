@@ -1,1 +1,1068 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>LuxeAI — Créer l'Extraordinaire</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+:root {
+    --bg: #FAF7F5; --panel: #FFFFFF; --panel-2: #F5F0F0;
+    --border: #E8E0E0; --border-soft: #F0EAEA;
+    --gold: #D4AF37; --gold-soft: #F5E6C8; --gold-deep: #B8962E;
+    --rose: #E8B4B8; --rose-soft: #F5D5D8; --rose-deep: #D4949A;
+    --lilac: #C8A2C8; --lilac-soft: #E8D8E8; --lilac-deep: #A88AA8;
+    --ink: #2A2A2A; --ink-dim: #888888; --ink-faint: #BBBBBB;
+    --success: #7BA888; --error: #D47A7A; --warn: #D4A850;
+    --radius: 16px; --radius-sm: 10px;
+    --font-serif: 'Cormorant Garamond', 'Georgia', serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+    --shadow: 0 4px 20px rgba(0,0,0,0.04);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.08);
+}
+body.dark {
+    --bg: #1A1620; --panel: #24202A; --panel-2: #2A2530;
+    --border: #3A3440; --border-soft: #302A36;
+    --ink: #F0EAE8; --ink-dim: #A8A0A8; --ink-faint: #605860;
+    --shadow: 0 4px 20px rgba(0,0,0,0.3);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.4);
+}
+body {
+    font-family: var(--font-sans); background: var(--bg); color: var(--ink);
+    min-height: 100vh; padding: 1rem 1rem 6rem; font-size: 15px;
+    line-height: 1.6; max-width: 960px; margin: 0 auto;
+    letter-spacing: 0.01em; transition: background 0.3s, color 0.3s;
+}
+header { text-align: center; padding: 1.5rem 0 1rem; position: relative; }
+header::before { content: '✦'; position: absolute; top: 0; left: 50%; transform: translateX(-50%); color: var(--gold); font-size: 0.8rem; opacity: 0.6; }
+.header-top { display: flex; justify-content: space-between; align-items: center; max-width: 900px; margin: 0 auto 0.5rem; }
+.brand { font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; letter-spacing: 0.08em; background: linear-gradient(135deg, var(--gold) 0%, var(--rose) 50%, var(--lilac) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.brand-sub { font-family: var(--font-serif); font-size: 0.85rem; color: var(--ink-dim); font-style: italic; letter-spacing: 0.1em; margin-top: 0.2rem; }
+.theme-toggle { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); background: var(--panel); color: var(--ink-dim); font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.theme-toggle:hover { border-color: var(--gold); color: var(--gold); }
 
+.tabs { display: flex; gap: 0.3rem; margin-bottom: 1.2rem; background: var(--panel); border-radius: var(--radius); padding: 0.35rem; border: 1px solid var(--border); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tab { flex: 1; min-width: 70px; padding: 0.7rem 0.4rem; border-radius: var(--radius-sm); border: none; background: transparent; color: var(--ink-dim); font-family: var(--font-sans); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; white-space: nowrap; text-align: center; }
+.tab.active { background: linear-gradient(135deg, var(--gold-soft), var(--rose-soft)); color: var(--ink); box-shadow: var(--shadow); }
+.tab-icon { display: block; font-size: 1.1rem; margin-bottom: 0.15rem; }
+
+.panel { display: none; animation: fadeIn 0.3s ease; }
+.panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.section { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1rem; overflow: hidden; box-shadow: var(--shadow); }
+.section-header { padding: 1rem 1.2rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }
+.section-header:active { background: var(--panel-2); }
+.section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-dim); font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+.section-title .badge { padding: 0.1rem 0.5rem; border-radius: 10px; font-size: 0.6rem; background: var(--gold-soft); color: var(--gold-deep); font-weight: 700; }
+.chevron { font-size: 0.7rem; color: var(--ink-faint); transition: transform 0.3s; }
+.section.open .chevron { transform: rotate(180deg); color: var(--gold); }
+.section-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+.section.open .section-body { max-height: 8000px; }
+.section-content { padding: 0 1.2rem 1.2rem; }
+
+.api-panel { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem; margin-bottom: 1rem; box-shadow: var(--shadow); transition: border-color 0.3s; }
+.api-panel.ok { border-color: var(--success); }
+.api-key-input { width: 100%; padding: 0.85rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); color: var(--ink); font-family: var(--font-mono); font-size: 0.82rem; margin-bottom: 0.6rem; }
+.api-key-input:focus { outline: none; border-color: var(--gold); }
+.api-save-btn { width: 100%; padding: 0.8rem; border-radius: var(--radius-sm); border: none; background: linear-gradient(135deg, var(--gold), var(--rose-deep)); color: #fff; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; margin-bottom: 0.6rem; }
+.api-status-line { font-size: 0.75rem; padding: 0.6rem 0.9rem; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 0.5rem; background: var(--panel-2); color: var(--ink-dim); border: 1px solid var(--border-soft); }
+.api-status-line.ok { background: #E8F0E8; color: #5A8A68; border-color: #C8E0C8; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-faint); flex-shrink: 0; }
+.api-status-line.ok .status-dot { background: var(--success); }
+.api-hint { font-size: 0.72rem; color: var(--ink-dim); margin-top: 0.5rem; }
+.api-hint a { color: var(--gold-deep); text-decoration: none; border-bottom: 1px dotted var(--gold); }
+
+.btn-primary { width: 100%; padding: 1.1rem; border-radius: var(--radius); border: none; background: linear-gradient(135deg, var(--gold), var(--rose-deep), var(--lilac-deep)); color: #fff; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; margin-bottom: 0.8rem; box-shadow: var(--shadow-lg); transition: opacity 0.2s, transform 0.1s; }
+.btn-primary:active:not(:disabled) { transform: scale(0.98); }
+.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-secondary { width: 100%; padding: 0.9rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--panel); color: var(--ink-dim); font-size: 0.82rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; margin-bottom: 0.8rem; }
+.btn-secondary:hover { border-color: var(--gold); color: var(--gold-deep); }
+.btn-stop { width: 100%; padding: 0.85rem; border-radius: var(--radius); border: 1px solid var(--error); background: transparent; color: var(--error); font-size: 0.82rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; margin-bottom: 0.8rem; display: none; }
+.btn-stop.visible { display: block; }
+
+textarea, input[type="text"] { width: 100%; padding: 0.9rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); color: var(--ink); font-family: inherit; font-size: 0.9rem; line-height: 1.5; resize: vertical; }
+textarea:focus, input[type="text"]:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,0.1); }
+textarea { min-height: 100px; }
+select { width: 100%; padding: 0.8rem 0.95rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); color: var(--ink); font-family: inherit; font-size: 0.88rem; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%23D4AF37' d='M0 0l5 6 5-6z'/></svg>"); background-repeat: no-repeat; background-position: right 0.95rem center; background-size: 10px; cursor: pointer; }
+select:focus { outline: none; border-color: var(--gold); }
+.control-row { margin-bottom: 1rem; }
+.control-row:last-child { margin-bottom: 0; }
+.control-label { display: block; font-size: 0.72rem; color: var(--ink-dim); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+
+.mode-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1rem; }
+.mode-card { padding: 1rem 0.6rem; border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: var(--panel-2); cursor: pointer; text-align: center; transition: all 0.2s; user-select: none; }
+.mode-card:active { transform: scale(0.97); }
+.mode-card.selected { border-color: var(--gold); background: linear-gradient(135deg, var(--gold-soft), var(--rose-soft)); }
+.mode-card .mode-icon { font-size: 1.6rem; display: block; margin-bottom: 0.3rem; }
+.mode-card .mode-name { font-size: 0.72rem; font-weight: 700; color: var(--ink); }
+.mode-card .mode-desc { font-size: 0.6rem; color: var(--ink-dim); margin-top: 0.15rem; line-height: 1.3; }
+
+.style-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.5rem; }
+.style-card { padding: 0.8rem 0.5rem; border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: var(--panel-2); cursor: pointer; text-align: center; transition: all 0.2s; user-select: none; }
+.style-card:active { transform: scale(0.97); }
+.style-card.selected { border-color: var(--gold); background: linear-gradient(135deg, var(--gold-soft), var(--rose-soft)); }
+.style-card .style-emoji { font-size: 1.4rem; display: block; margin-bottom: 0.3rem; }
+.style-card .style-name { font-size: 0.7rem; font-weight: 600; color: var(--ink); line-height: 1.2; }
+
+.upload-zone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 2rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--panel-2); margin-bottom: 1rem; position: relative; }
+.upload-zone:active { border-color: var(--gold); background: var(--bg); }
+.upload-zone.has-image { padding: 0; border-style: solid; border-color: var(--gold); }
+.upload-zone input[type="file"] { display: none; }
+.upload-icon { font-size: 2.2rem; margin-bottom: 0.5rem; opacity: 0.5; }
+.upload-text { font-size: 0.88rem; color: var(--ink); font-weight: 600; }
+.upload-hint { font-size: 0.72rem; color: var(--ink-dim); margin-top: 0.3rem; }
+.upload-preview { position: relative; display: block; width: 100%; max-height: 300px; overflow: hidden; border-radius: var(--radius); }
+.upload-preview img { width: 100%; height: auto; display: block; max-height: 300px; object-fit: contain; background: #000; }
+.upload-preview .remove-btn { position: absolute; top: 0.5rem; right: 0.5rem; width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.6); color: #fff; border: none; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+.queue-summary { background: var(--panel); border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: var(--radius-sm); padding: 0.8rem 1rem; margin-bottom: 0.6rem; font-size: 0.78rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.4rem; }
+.progress-text { color: var(--gold-deep); font-weight: 700; }
+.eta-text { color: var(--ink-dim); }
+.queue-item { display: flex; align-items: center; gap: 0.7rem; padding: 0.7rem 0.9rem; border-radius: var(--radius-sm); border: 1px solid var(--border-soft); margin-bottom: 0.4rem; background: var(--panel); font-size: 0.82rem; }
+.queue-item.pending { opacity: 0.5; }
+.queue-item.creating { border-color: var(--warn); }
+.queue-item.processing { border-color: var(--gold); }
+.queue-item.done { border-color: var(--success); }
+.queue-item.failed { border-color: var(--error); }
+.q-icon { font-size: 1rem; width: 1.5rem; text-align: center; flex-shrink: 0; }
+.q-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.q-status { font-size: 0.7rem; color: var(--ink-dim); text-align: right; max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.7rem; }
+.gallery-item { border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border); background: #000; animation: fadeIn 0.4s ease; position: relative; }
+.gallery-item img, .gallery-item video { width: 100%; display: block; aspect-ratio: 9/16; object-fit: cover; }
+.gallery-item .g-caption { padding: 0.5rem 0.6rem; background: var(--panel); font-size: 0.68rem; color: var(--ink-dim); border-top: 1px solid var(--border); }
+.gallery-item .g-actions { position: absolute; top: 0.4rem; right: 0.4rem; display: flex; gap: 0.3rem; opacity: 0; transition: opacity 0.2s; }
+.gallery-item:hover .g-actions { opacity: 1; }
+.gallery-item .g-actions button { width: 28px; height: 28px; border-radius: 50%; border: none; background: rgba(0,0,0,0.6); color: #fff; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+.status-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--panel); border-top: 1px solid var(--border); color: var(--ink); padding: 0.8rem 1.2rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.6rem; transform: translateY(100%); transition: transform 0.3s; z-index: 100; }
+.status-bar.visible { transform: translateY(0); }
+.spinner { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.toast { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--ink); color: var(--bg); padding: 0.8rem 1.4rem; border-radius: var(--radius-sm); font-size: 0.82rem; font-weight: 600; box-shadow: var(--shadow-lg); z-index: 1000; opacity: 0; transition: all 0.35s ease; max-width: 90vw; text-align: center; }
+.toast.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.success { background: var(--success); color: #fff; }
+.toast.error { background: var(--error); color: #fff; }
+.toast.warn { background: var(--warn); color: #fff; }
+
+.char-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+.char-chip { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.7rem; border-radius: 20px; background: var(--panel-2); border: 1px solid var(--border); font-size: 0.72rem; }
+.char-chip .char-img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--gold); }
+.char-chip .char-name { font-weight: 600; color: var(--ink); }
+.char-chip .char-remove { width: 18px; height: 18px; border-radius: 50%; border: none; background: var(--rose); color: #fff; font-size: 0.6rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+.media-log { margin-top: 1rem; max-height: 300px; overflow-y: auto; }
+.media-log-entry { display: flex; gap: 0.5rem; padding: 0.5rem 0.7rem; background: var(--panel-2); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); margin-bottom: 0.3rem; font-size: 0.68rem; align-items: center; font-family: var(--font-mono); }
+.ml-tag { padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.58rem; font-weight: 700; text-transform: uppercase; flex-shrink: 0; }
+.ml-tag.image { background: var(--gold-soft); color: var(--gold-deep); }
+.ml-tag.video { background: var(--lilac-soft); color: var(--lilac-deep); }
+.ml-url { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-dim); }
+.media-log-entry a { color: var(--gold-deep); text-decoration: none; }
+
+@media (max-width: 480px) {
+    .brand { font-size: 1.8rem; }
+    .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+    .mode-card .mode-desc { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header>
+    <div class="header-top">
+        <div></div>
+        <div style="text-align:center;">
+            <div class="brand">LuxeAI</div>
+            <div class="brand-sub">Créer l'Extraordinaire</div>
+        </div>
+        <button class="theme-toggle" id="theme-toggle">☾</button>
+    </div>
+</header>
+
+<div class="api-panel" id="api-panel">
+    <input type="password" class="api-key-input" id="api-key-input" placeholder="Collez votre clé API Agnes (sk-...)" autocomplete="off" spellcheck="false">
+    <button type="button" class="api-save-btn" id="api-save-btn">Enregistrer la clé</button>
+    <div class="api-status-line" id="api-status-line">
+        <span class="status-dot"></span>
+        <span id="api-status-text">Aucune clé API enregistrée</span>
+    </div>
+    <div class="api-hint">
+        Clé gratuite sur <a href="https://platform.agnes-ai.com" target="_blank">platform.agnes-ai.com</a> → Settings → API Keys
+    </div>
+</div>
+
+<div class="tabs">
+    <button class="tab active" data-tab="create"><span class="tab-icon">✦</span>Créer</button>
+    <button class="tab" data-tab="agent"><span class="tab-icon">🎬</span>Agent</button>
+    <button class="tab" data-tab="characters"><span class="tab-icon">👤</span>Personnages</button>
+    <button class="tab" data-tab="gallery"><span class="tab-icon">📁</span>Créations</button>
+</div>
+
+<!-- TAB CREATE -->
+<div class="panel active" id="panel-create">
+    <div class="section open">
+        <div class="section-header" data-toggle="section-mode">
+            <span class="section-title">✦ Mode de création</span>
+            <span class="chevron">▼</span>
+        </div>
+        <div class="section-body">
+            <div class="section-content">
+                <div class="mode-grid">
+                    <div class="mode-card selected" data-mode="text-to-video"><span class="mode-icon">🎬</span><span class="mode-name">Texte → Vidéo</span><span class="mode-desc">Décrivez, l'IA filme</span></div>
+                    <div class="mode-card" data-mode="image-to-video"><span class="mode-icon">📷</span><span class="mode-name">Image → Vidéo</span><span class="mode-desc">Donnez vie à une image</span></div>
+                    <div class="mode-card" data-mode="text-to-image"><span class="mode-icon">🖼️</span><span class="mode-name">Texte → Image</span><span class="mode-desc">Générez une image</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section open">
+        <div class="section-header" data-toggle="section-prompt">
+            <span class="section-title">✍️ Votre vision</span>
+            <span class="chevron">▼</span>
+        </div>
+        <div class="section-body">
+            <div class="section-content">
+                <textarea id="main-prompt" placeholder="Décrivez ce que vous voulez créer..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" id="section-upload" style="display:none;">
+        <div class="section-header" data-toggle="section-upload">
+            <span class="section-title">📷 Image source</span>
+            <span class="chevron">▼</span>
+        </div>
+        <div class="section-body">
+            <div class="section-content">
+                <div class="upload-zone" id="upload-zone">
+                    <input type="file" id="file-input" accept="image/*">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">Ajoutez une image</div>
+                    <div class="upload-hint">Cliquez ou glissez une photo ici</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section open">
+        <div class="section-header" data-toggle="section-style">
+            <span class="section-title">🎨 Style visuel</span>
+            <span class="chevron">▼</span>
+        </div>
+        <div class="section-body">
+            <div class="section-content">
+                <div class="style-grid" id="style-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section open">
+        <div class="section-header" data-toggle="section-options">
+            <span class="section-title">⚙️ Options</span>
+            <span class="chevron">▼</span>
+        </div>
+        <div class="section-body">
+            <div class="section-content">
+                <div class="control-row" id="image-quality-row" style="display:none;">
+                    <label class="control-label">Qualité de l'image</label>
+                    <select id="image-size-select">
+                        <option value="1K">1K — Rapide</option>
+                        <option value="2K" selected>2K — Équilibré</option>
+                        <option value="3K">3K — Haute (1 RPM)</option>
+                        <option value="4K">4K — Maximum (1 RPM)</option>
+                    </select>
+                </div>
+                <div class="control-row" id="video-quality-row">
+                    <label class="control-label">Qualité de la vidéo</label>
+                    <select id="video-size-select">
+                        <option value="720P" selected>720P — Gratuit (Flash)</option>
+                        <option value="1080P">1080P — HD (payant)</option>
+                        <option value="2K">2K — Maximum (payant)</option>
+                    </select>
+                </div>
+                <div class="control-row">
+                    <label class="control-label">Format</label>
+                    <select id="format-select">
+                        <option value="9:16" selected>9:16 — Portrait (TikTok/Reels)</option>
+                        <option value="16:9">16:9 — Paysage (YouTube)</option>
+                        <option value="1:1">1:1 — Carré (Instagram)</option>
+                    </select>
+                </div>
+                <div class="control-row" id="duration-row">
+                    <label class="control-label">Durée de la vidéo</label>
+                    <select id="duration-select">
+                        <option value="4">4 secondes</option>
+                        <option value="5">5 secondes</option>
+                        <option value="8">8 secondes</option>
+                        <option value="10" selected>10 secondes</option>
+                        <option value="12">12 secondes</option>
+                    </select>
+                </div>
+                <div class="control-row">
+                    <label class="control-label">Intensité du mouvement</label>
+                    <select id="intensity-select">
+                        <option value="subtle">Subtile — contemplatif</option>
+                        <option value="moderate" selected>Modérée — élégante</option>
+                        <option value="strong">Forte — dynamique</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" class="btn-primary" id="generate-btn" disabled>✦ GÉNÉRER ✦</button>
+    <button type="button" class="btn-stop" id="stop-btn">⏹ Arrêter</button>
+    <div id="queue" style="display:none;"></div>
+</div>
+
+<!-- TAB AGENT -->
+<div class="panel" id="panel-agent">
+    <div class="section open">
+        <div class="section-header" data-toggle="section-agent">
+            <span class="section-title">🎬 Agent IA — Création autonome</span>
+            <span class="chevron">▼</span>
+        </div>
+        <div class="section-body">
+            <div class="section-content">
+                <p style="font-size:0.78rem;color:var(--ink-dim);margin-bottom:0.8rem;">Décrivez votre projet. L'Agent écrit le scénario, génère les images composites, crée les vidéos, et assemble tout automatiquement.</p>
+                <textarea id="agent-idea" placeholder="Ex : Un court-métrage éducatif sur le cycle de l'eau pour enfants de 8 ans, avec des personnages animés mignons..."></textarea>
+                <div class="control-row" style="margin-top:0.8rem;">
+                    <label class="control-label">Durée cible</label>
+                    <select id="agent-duration">
+                        <option value="30">30 secondes (~5 scènes)</option>
+                        <option value="60" selected>1 minute (~10 scènes)</option>
+                        <option value="120">2 minutes (~20 scènes)</option>
+                    </select>
+                </div>
+                <div class="control-row">
+                    <label class="control-label">Style</label>
+                    <select id="agent-style">
+                        <option value="cinematic" selected>Réaliste / Cinématique</option>
+                        <option value="pedagogue">Pédagogue</option>
+                        <option value="manga">Animé Manga</option>
+                        <option value="cartoon">Cartoon</option>
+                        <option value="enfant">Enfant</option>
+                        <option value="educatif">Éducatif</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button type="button" class="btn-primary" id="agent-generate-btn" disabled>🎬 LANCER L'AGENT</button>
+    <button type="button" class="btn-stop" id="agent-stop-btn">⏹ Arrêter l'Agent</button>
+    <div id="agent-progress" style="display:none;"></div>
+    <div id="agent-gallery" style="display:none;margin-top:1rem;">
+        <div class="section open">
+            <div class="section-header" data-toggle="section-agent-result">
+                <span class="section-title">🎞️ Résultat de l'Agent</span>
+                <span class="chevron">▼</span>
+            </div>
+            <div class="section-body">
+                <div class="section-content">
+                    <div class="gallery-grid" id="agent-gallery-grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TAB CHARACTERS -->
+<div class="panel" id="panel-characters">
+    <div class="section open">
+        <div class="section-header" data-toggle="section-char-upload">
+            <span class="section-title">👤 Mes personnages sauvegardés</span>
+            <span class="chevron">▼</span>
+        </div>
+        <div class="section-body">
+            <div class="section-content">
+                <p style="font-size:0.78rem;color:var(--ink-dim);margin-bottom:0.8rem;line-height:1.5;">
+                    Ajoutez des images de vos personnages. LuxeAI les reconnaîtra automatiquement dans toutes vos générations grâce au workflow composite.
+                </p>
+                <div class="upload-zone" id="char-upload-zone">
+                    <input type="file" id="char-file-input" accept="image/*" multiple>
+                    <div class="upload-icon">👤</div>
+                    <div class="upload-text">Ajouter un personnage</div>
+                    <div class="upload-hint">Une image par personnage (max 5)</div>
+                </div>
+                <div class="char-list" id="char-list"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TAB GALLERY -->
+<div class="panel" id="panel-gallery">
+    <div class="section open">
+        <div class="section-header" data-toggle="section-gallery">
+            <span class="section-title">📁 Mes créations</span>
+            <span class="chevron">▼</span>
+        </div>
+        <div class="section-body">
+            <div class="section-content">
+                <div style="display:flex;gap:0.4rem;margin-bottom:0.8rem;flex-wrap:wrap;">
+                    <button class="btn-secondary" style="width:auto;padding:0.4rem 0.8rem;font-size:0.7rem;margin:0;" data-filter="all">Tout</button>
+                    <button class="btn-secondary" style="width:auto;padding:0.4rem 0.8rem;font-size:0.7rem;margin:0;" data-filter="image">Images</button>
+                    <button class="btn-secondary" style="width:auto;padding:0.4rem 0.8rem;font-size:0.7rem;margin:0;" data-filter="video">Vidéos</button>
+                </div>
+                <div class="gallery-grid" id="main-gallery"></div>
+                <div id="gallery-empty" style="text-align:center;padding:2rem;color:var(--ink-dim);font-size:0.82rem;">✦ Vos créations apparaîtront ici ✦</div>
+            </div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="section-header" data-toggle="section-medialog">
+            <span class="section-title">🗂️ Journal des médias</span>
+            <span class="chevron">▼</span>
+        </div>
+        <div class="section-body">
+            <div class="section-content">
+                <div class="media-log" id="media-log"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="status-bar" id="status-bar"><div class="spinner"></div><span id="status-text">Préparation…</span></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// CONFIGURATION — Basée sur la documentation Agnes AI
+// ══════════════════════════════════════════════════════════════════
+const API_BASE = 'https://apihub.agnes-ai.com/v1';
+const POLL_BASE = 'https://apihub.agnes-ai.com/agnesapi';
+
+// Modèles (vérifiés documentation)
+const MODEL_TEXT = 'agnes-3.0-flash'; // Nouveau modèle gratuit, Agent-friendly
+const MODEL_IMAGE = 'agnes-image-2.5-flash'; // Dernière version, gratuite
+const MODEL_VIDEO_FLASH = 'agnes-video-2.5-flash'; // Gratuit ($0/sec), 720P
+const MODEL_VIDEO_HD = 'agnes-video-2.5'; // Payant, 720P/1080P/2K
+
+// Timings (vérifiés RPM)
+const VIDEO_RPM_MS = 65000; // 1/min + marge
+const TEXT_RPM_MS = 6500; // 10/min + marge
+const IMAGE_INTERVAL_MS = 6000; // 2K = 10 RPM
+const IMAGE_INTERVAL_1K = 3500; // 1K = 20 RPM
+const IMAGE_INTERVAL_3K = 65000; // 3K = 1 RPM
+const IMAGE_INTERVAL_4K = 65000; // 4K = 1 RPM
+
+const POLL_INTERVAL_SEC = 8;
+const MAX_POLL_ATTEMPTS = 120;
+const FIRST_POLL_DELAY_SEC = 80;
+
+const API_KEY_STORAGE = 'luxeai_api_key_v3';
+const GALLERY_KEY = 'luxeai_gallery_v3';
+const CHARACTERS_KEY = 'luxeai_characters_v3';
+
+// ══════════════════════════════════════════════════════════════════
+// STYLES — Ceux demandés
+// ══════════════════════════════════════════════════════════════════
+const STYLES = [
+    { id: 'cinematic', name: 'Réaliste / Cinématique', emoji: '🎬',
+      prompt: 'photorealistic cinematic, dramatic lighting, shallow depth of field, film grain, professional color grading, 35mm, high detail, luxury aesthetic' },
+    { id: 'pedagogue', name: 'Pédagogue', emoji: '📚',
+      prompt: 'educational diagram style, clear labeled illustrations, step-by-step visual explanation, clean layout, informative, teacher-friendly' },
+    { id: 'manga', name: 'Animé Manga', emoji: '🌸',
+      prompt: 'anime manga style, Japanese animation aesthetic, cel shading, vibrant colors, expressive characters, Studio Ghibli inspired backgrounds' },
+    { id: 'cartoon', name: 'Cartoon', emoji: '🎨',
+      prompt: 'cartoon style, bold outlines, flat vibrant colors, playful exaggerated features, animation-ready design' },
+    { id: 'enfant', name: 'Enfant', emoji: '🧸',
+      prompt: 'children illustration style, soft pastel colors, cute rounded shapes, friendly characters, storybook aesthetic, gentle and warm' },
+    { id: 'educatif', name: 'Éducatif', emoji: '🎓',
+      prompt: 'educational illustration, school textbook style, clear informative visuals, structured composition, age-appropriate design, learning-focused' }
+];
+
+// ══════════════════════════════════════════════════════════════════
+// ÉTAT
+// ══════════════════════════════════════════════════════════════════
+const state = {
+    mode: 'text-to-video',
+    selectedStyle: 'cinematic',
+    mainPrompt: '',
+    sourceImage: null,
+    referenceCharacters: [],
+    format: '9:16',
+    imageSize: '2K',
+    videoSize: '720P',
+    duration: 10,
+    intensity: 'moderate',
+    isRunning: false,
+    stopRequested: false,
+    queue: [],
+    gallery: [],
+    agent: { isRunning: false, stopRequested: false, phase: 'idle', scenes: [], images: [], videos: [] }
+};
+
+// ══════════════════════════════════════════════════════════════════
+// UTILITAIRES
+// ══════════════════════════════════════════════════════════════════
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function getApiKey() { try { return (localStorage.getItem(API_KEY_STORAGE) || '').trim(); } catch (e) { return ''; } }
+function setStatus(text) { const bar = document.getElementById('status-bar'); const txt = document.getElementById('status-text'); if (!bar || !txt) return; if (text) { bar.classList.add('visible'); txt.textContent = text; } else bar.classList.remove('visible'); }
+let toastTimeout = null;
+function showToast(msg, type = 'success', duration = 2800) { const toast = document.getElementById('toast'); if (!toast) return; toast.textContent = msg; toast.className = 'toast'; void toast.offsetWidth; toast.classList.add(type); requestAnimationFrame(() => toast.classList.add('visible')); if (toastTimeout) clearTimeout(toastTimeout); toastTimeout = setTimeout(() => toast.classList.remove('visible'), duration); }
+function formatEta(sec) { if (sec < 60) return Math.round(sec) + 's'; const m = Math.floor(sec / 60); const s = Math.round(sec % 60); return m + 'm' + (s > 0 ? ' ' + s + 's' : ''); }
+function getImageInterval() {
+    if (state.imageSize === '1K') return IMAGE_INTERVAL_1K;
+    if (state.imageSize === '3K' || state.imageSize === '4K') return IMAGE_INTERVAL_3K;
+    return IMAGE_INTERVAL_MS;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// API KEY
+// ══════════════════════════════════════════════════════════════════
+function saveApiKey() { const input = document.getElementById('api-key-input'); if (!input) return; const key = input.value.trim(); try { if (key) localStorage.setItem(API_KEY_STORAGE, key); else localStorage.removeItem(API_KEY_STORAGE); } catch (e) {} updateApiPanel(); showToast(key ? 'Clé API enregistrée ✓' : 'Clé supprimée', key ? 'success' : 'warn'); input.blur(); }
+function updateApiPanel() { const panel = document.getElementById('api-panel'); const input = document.getElementById('api-key-input'); const statusLine = document.getElementById('api-status-line'); const statusText = document.getElementById('api-status-text'); const key = getApiKey(); if (!panel || !input || !statusLine || !statusText) return; if (key) { panel.classList.add('ok'); statusLine.classList.add('ok'); statusText.textContent = 'Clé active · ' + key.slice(0, 8) + '…' + key.slice(-4); input.value = key; } else { panel.classList.remove('ok'); statusLine.classList.remove('ok'); statusText.textContent = 'Aucune clé API enregistrée'; input.value = ''; } updateGenerateBtns(); }
+function updateGenerateBtns() { const hasKey = !!getApiKey(); const genBtn = document.getElementById('generate-btn'); const agentBtn = document.getElementById('agent-generate-btn'); const hasPrompt = document.getElementById('main-prompt')?.value.trim().length > 0; const hasIdea = document.getElementById('agent-idea')?.value.trim().length > 0; if (genBtn) genBtn.disabled = !hasKey || !hasPrompt || state.isRunning; if (agentBtn) agentBtn.disabled = !hasKey || !hasIdea || state.agent.isRunning; }
+
+// ══════════════════════════════════════════════════════════════════
+// API AGNES — Avec gestion 429/503
+// ══════════════════════════════════════════════════════════════════
+async function apiFetch(url, options = {}, label = 'API') {
+    for (let attempt = 0; attempt < 7; attempt++) {
+        if (state.stopRequested || state.agent.stopRequested) throw new Error('Arrêt demandé');
+        try {
+            const res = await fetch(url, options);
+            if (res.status === 429) { const wait = [15, 30, 45, 60, 90, 120, 180][Math.min(attempt, 6)]; setStatus('L\'IA se prépare… (' + wait + 's)'); await sleep(wait * 1000); continue; }
+            if (res.status === 503) { const wait = [5, 10, 15, 20, 30, 45][Math.min(attempt, 5)]; setStatus('Service en préparation… (' + wait + 's)'); await sleep(wait * 1000); continue; }
+            return res;
+        } catch (e) { if (e.message === 'Arrêt demandé') throw e; const wait = [3, 5, 8, 12, 20, 30][Math.min(attempt, 5)]; setStatus('Connexion… (' + wait + 's)'); await sleep(wait * 1000); }
+    }
+    return fetch(url, options);
+}
+
+// ─── IMAGE GENERATION — Avec support multi-image pour composite ───
+async function generateImage(prompt, size = '2K', ratio = '9:16', images = null) {
+    const body = {
+        model: MODEL_IMAGE,
+        prompt: prompt,
+        size: size,
+        ratio: ratio,
+        n: 1,
+        extra_body: { response_format: 'url' }
+    };
+    // Si images fournies → mode multi-image composition (workflow composite)
+    if (images && images.length > 0) {
+        body.extra_body.image = images;
+    }
+    const res = await apiFetch(API_BASE + '/images/generations', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + getApiKey(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    }, 'Image');
+    if (!res.ok) { const err = await res.text(); throw new Error('HTTP ' + res.status + ' — ' + err.slice(0, 200)); }
+    const data = await res.json();
+    const url = data.data?.[0]?.url;
+    if (!url) throw new Error('Pas d\'URL d\'image retournée');
+    return url;
+}
+
+// ─── VIDEO GENERATION — Avec workflow composite corrigé ───
+async function createVideoTask(prompt, compositeImageUrl, seconds = '10', size = '720P', mode = 'keyframe') {
+    const model = size === '720P' ? MODEL_VIDEO_FLASH : MODEL_VIDEO_HD;
+    const body = {
+        model: model,
+        prompt: prompt,
+        mode: mode,
+        seconds: seconds,
+        size: size,
+        aspect_ratio: state.format
+    };
+    // Workflow composite : UNE SEULE image (pas de last_frame → évite la disparition)
+    if (compositeImageUrl) {
+        body.first_frame = compositeImageUrl;
+        // PAS de last_frame → mode keyframe simple, personnage préservé
+    }
+    const res = await apiFetch(API_BASE + '/videos', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + getApiKey(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    }, 'Vidéo');
+    if (!res.ok) { const err = await res.text(); throw new Error('HTTP ' + res.status + ' — ' + err.slice(0, 200)); }
+    const data = await res.json();
+    const videoId = data.video_id || data.id || data.task_id;
+    if (!videoId) throw new Error('Pas de video_id retourné');
+    return { videoId, model: model };
+}
+
+async function pollVideo(videoId, model, onProgress) {
+    let remaining = FIRST_POLL_DELAY_SEC;
+    while (remaining > 0) { if (state.stopRequested || state.agent.stopRequested) throw new Error('Arrêt demandé'); onProgress('Préparation… — ' + remaining + 's'); await sleep(1000); remaining--; }
+    for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
+        if (state.stopRequested || state.agent.stopRequested) throw new Error('Arrêt demandé');
+        if (attempt > 0) { let r = POLL_INTERVAL_SEC; while (r > 0) { if (state.stopRequested || state.agent.stopRequested) throw new Error('Arrêt demandé'); onProgress('L\'image prend vie… — ' + r + 's'); await sleep(1000); r--; } }
+        const url = POLL_BASE + '?video_id=' + encodeURIComponent(videoId) + '&model_name=' + encodeURIComponent(model);
+        const res = await apiFetch(url, { method: 'GET', headers: { 'Authorization': 'Bearer ' + getApiKey() } }, 'Polling');
+        const d = await res.json();
+        const status = d.status || 'unknown';
+        const progress = d.progress || 0;
+        onProgress('Création… ' + progress + '%');
+        if (status === 'completed' || status === 'succeeded' || status === 'done') { const videoUrl = (d.metadata && d.metadata.url) || d.url || (d.output && d.output.url); if (!videoUrl) throw new Error('Terminé mais pas d\'URL'); return videoUrl; }
+        if (status === 'failed' || status === 'error' || status === 'cancelled') { throw new Error('Échec (' + status + ')'); }
+    }
+    throw new Error('Délai maximal dépassé');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// WORKFLOW COMPOSITE — CORRIGE LA DISPARITION DU PERSONNAGE
+// ══════════════════════════════════════════════════════════════════
+// Problème : le mode keyframes pur fait disparaître le personnage
+// Solution validée : générer une image composite (personnage + scène)
+// puis utiliser cette image unique pour la vidéo
+async function generateCompositeImage(scenePrompt, sceneStyle, useCharacters = true) {
+    const style = STYLES.find(s => s.id === sceneStyle) || STYLES[0];
+   
+    // Construction du prompt composite (stratégie E — la meilleure)
+    let compositePrompt = '';
+    if (useCharacters && state.referenceCharacters.length > 0) {
+        // Décrire chaque personnage explicitement
+        const charDescs = state.referenceCharacters.slice(0, 5).map((c, i) =>
+            `Character ${i+1} (from reference image ${i+1}): ${c.name}`
+        ).join('. ');
+       
+        compositePrompt = `COMPOSITE IMAGE: Combine all reference characters into ONE scene. ` +
+            `${charDescs}. ` +
+            `Scene: ${scenePrompt}. ` +
+            `Style: ${style.prompt}. ` +
+            `The characters must retain their EXACT appearance from the reference images. ` +
+            `Natural integration into the scene. Cinematic composition. ` +
+            `Format: ${state.format}, high quality.`;
+    } else {
+        // Pas de personnage → génération directe
+        compositePrompt = `${scenePrompt}. ${style.prompt}. Format: ${state.format}, high quality.`;
+    }
+   
+    // Appel multi-image si personnages présents
+    const images = (useCharacters && state.referenceCharacters.length > 0)
+        ? state.referenceCharacters.slice(0, 5).map(c => c.url)
+        : null;
+   
+    return await generateImage(compositePrompt, '2K', state.format, images);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// QUEUE RENDERING
+// ══════════════════════════════════════════════════════════════════
+function renderQueue() {
+    const queueEl = document.getElementById('queue');
+    if (!queueEl) return;
+    if (!state.queue.length) { queueEl.style.display = 'none'; return; }
+    queueEl.style.display = 'block';
+    const total = state.queue.length;
+    const done = state.queue.filter(q => q.status === 'done' || q.status === 'failed').length;
+    let html = '<div class="queue-summary"><span class="progress-text">Progression : ' + done + '/' + total + '</span><span class="eta-text">' + (done < total ? '≈ ' + formatEta((total - done) * 90) + ' restant' : 'Terminé') + '</span></div>';
+    html += state.queue.map(item => {
+        let icon = '○', statusText = 'En attente', cls = 'pending';
+        if (item.status === 'creating') { icon = '◐'; statusText = 'Création…'; cls = 'creating'; }
+        else if (item.status === 'processing') { icon = '◐'; statusText = item.progress || 'En cours…'; cls = 'processing'; }
+        else if (item.status === 'done') { icon = '●'; statusText = 'Terminé ✓'; cls = 'done'; }
+        else if (item.status === 'failed') { icon = '✕'; statusText = 'Échec'; cls = 'failed'; }
+        return '<div class="queue-item ' + cls + '"><div class="q-icon">' + icon + '</div><div class="q-name">' + esc(item.label || 'Génération') + '</div><div class="q-status">' + esc(statusText) + '</div></div>';
+    }).join('');
+    queueEl.innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// GALLERY
+// ══════════════════════════════════════════════════════════════════
+function loadGallery() { try { const raw = localStorage.getItem(GALLERY_KEY); if (raw) state.gallery = JSON.parse(raw); } catch (e) { state.gallery = []; } }
+function saveGallery() { try { localStorage.setItem(GALLERY_KEY, JSON.stringify(state.gallery.slice(-200))); } catch (e) {} }
+function addToGallery(type, url, label) { const item = { id: Date.now() + Math.random(), type: type, url: url, label: label, date: new Date().toISOString() }; state.gallery.unshift(item); saveGallery(); renderGallery(); addMediaLog(type, url, label); return item; }
+function renderGallery(filter = 'all') {
+    const grid = document.getElementById('main-gallery');
+    const empty = document.getElementById('gallery-empty');
+    if (!grid) return;
+    let items = state.gallery;
+    if (filter !== 'all') items = items.filter(g => g.type === filter);
+    if (!items.length) { grid.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
+    if (empty) empty.style.display = 'none';
+    grid.innerHTML = items.map(g => {
+        const isVideo = g.type === 'video';
+        const media = isVideo ? '<video src="' + g.url + '" controls playsinline preload="metadata"></video>' : '<img src="' + g.url + '" alt="" loading="lazy">';
+        return '<div class="gallery-item" data-id="' + g.id + '">' + media + '<div class="g-actions"><button data-download="' + g.id + '" title="Télécharger">⬇</button><button data-delete="' + g.id + '" title="Supprimer">✕</button></div><div class="g-caption">' + esc(g.label || '') + '</div></div>';
+    }).join('');
+    grid.querySelectorAll('[data-download]').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); const id = parseFloat(btn.dataset.download); const item = state.gallery.find(g => g.id === id); if (item) downloadMedia(item.url, item.label); }); });
+    grid.querySelectorAll('[data-delete]').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); const id = parseFloat(btn.dataset.delete); state.gallery = state.gallery.filter(g => g.id !== id); saveGallery(); renderGallery(); showToast('Supprimé', 'warn'); }); });
+}
+function downloadMedia(url, label) { const a = document.createElement('a'); a.href = url; a.download = (label || 'luxeai') + '_' + Date.now(); a.target = '_blank'; document.body.appendChild(a); a.click(); document.body.removeChild(a); showToast('Téléchargement…', 'success'); }
+function addMediaLog(type, url, label) { const log = document.getElementById('media-log'); if (!log) return; const time = new Date().toLocaleTimeString('fr-FR', { hour12: false }); const el = document.createElement('div'); el.className = 'media-log-entry'; el.innerHTML = '<span class="ml-tag ' + type + '">' + type + '</span><span class="ml-url"><a href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(url.slice(0, 80)) + '…</a></span><span style="color:var(--ink-faint);font-size:0.6rem;">' + time + '</span>'; log.appendChild(el); }
+
+// ══════════════════════════════════════════════════════════════════
+// UPLOAD
+// ══════════════════════════════════════════════════════════════════
+function fileToDataUri(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = e => resolve(e.target.result); reader.onerror = () => reject(new Error('Erreur lecture')); reader.readAsDataURL(file); }); }
+async function handleSourceImage(file) {
+    if (!file || !file.type.startsWith('image/')) { showToast('Fichier non valide', 'error'); return; }
+    const dataUri = await fileToDataUri(file);
+    state.sourceImage = dataUri;
+    const zone = document.getElementById('upload-zone');
+    zone.classList.add('has-image');
+    zone.innerHTML = '<div class="upload-preview"><img src="' + dataUri + '" alt="Source"><button class="remove-btn" id="remove-source">✕</button></div>';
+    document.getElementById('remove-source').addEventListener('click', (e) => { e.stopPropagation(); state.sourceImage = null; resetUploadZone(); });
+    showToast('Image ajoutée ✓', 'success');
+}
+function resetUploadZone() { const zone = document.getElementById('upload-zone'); zone.classList.remove('has-image'); zone.innerHTML = '<input type="file" id="file-input" accept="image/*"><div class="upload-icon">📷</div><div class="upload-text">Ajoutez une image</div><div class="upload-hint">Cliquez ou glissez une photo ici</div>'; bindUploadZone(); }
+function bindUploadZone() { const zone = document.getElementById('upload-zone'); const input = document.getElementById('file-input'); if (!zone || !input) return; zone.addEventListener('click', (e) => { if (e.target.id === 'remove-source') return; input.click(); }); input.addEventListener('change', (e) => { const file = e.target.files && e.target.files[0]; if (file) handleSourceImage(file); }); }
+
+// ══════════════════════════════════════════════════════════════════
+// STYLES RENDERING
+// ══════════════════════════════════════════════════════════════════
+function renderStyles() {
+    const grid = document.getElementById('style-grid');
+    if (!grid) return;
+    grid.innerHTML = STYLES.map(s => '<div class="style-card ' + (state.selectedStyle === s.id ? 'selected' : '') + '" data-style="' + s.id + '"><span class="style-emoji">' + s.emoji + '</span><span class="style-name">' + esc(s.name) + '</span></div>').join('');
+    grid.querySelectorAll('[data-style]').forEach(el => { el.addEventListener('click', () => { state.selectedStyle = el.dataset.style; renderStyles(); }); });
+}
+
+// ══════════════════════════════════════════════════════════════════
+// MAIN GENERATION — Avec workflow composite
+// ══════════════════════════════════════════════════════════════════
+async function startGeneration() {
+    if (state.isRunning) return;
+    if (!getApiKey()) { showToast('Ajoutez votre clé API', 'error'); return; }
+    const prompt = document.getElementById('main-prompt').value.trim();
+    if (!prompt && !state.sourceImage) { showToast('Décrivez votre vision ou ajoutez une image', 'error'); return; }
+    if (state.mode === 'image-to-video' && !state.sourceImage) { showToast('Ajoutez une image source', 'error'); return; }
+
+    state.mainPrompt = prompt;
+    state.isRunning = true;
+    state.stopRequested = false;
+    state.queue = [{ label: state.mode === 'text-to-image' ? 'Image' : 'Vidéo', status: 'pending', progress: null }];
+
+    document.getElementById('stop-btn').classList.add('visible');
+    updateGenerateBtns();
+    renderQueue();
+
+    try {
+        if (state.mode === 'text-to-image') {
+            state.queue[0].status = 'processing';
+            state.queue[0].progress = 'Création…';
+            renderQueue();
+            setStatus('Génération de l\'image en ' + state.imageSize + '…');
+           
+            // Génération directe (ou composite si personnages)
+            let imageUrl;
+            if (state.referenceCharacters.length > 0) {
+                imageUrl = await generateCompositeImage(state.mainPrompt, state.selectedStyle, true);
+            } else {
+                const style = STYLES.find(s => s.id === state.selectedStyle);
+                const imagePrompt = state.mainPrompt + '. ' + style.prompt + '. Format: ' + state.format + ', high quality, no text.';
+                imageUrl = await generateImage(imagePrompt, state.imageSize, state.format);
+            }
+           
+            addToGallery('image', imageUrl, 'Image ' + state.imageSize + ' — ' + (STYLES.find(s => s.id === state.selectedStyle)?.name || ''));
+            state.queue[0].status = 'done';
+            showToast('Image ' + state.imageSize + ' créée ✓', 'success');
+        } else {
+            // Vidéo : workflow composite
+            state.queue[0].status = 'processing';
+            state.queue[0].progress = 'Création image composite…';
+            renderQueue();
+            setStatus('Création de l\'image composite…');
+           
+            // ÉTAPE 1 : Générer l'image composite (personnage + scène)
+            let compositeUrl;
+            if (state.referenceCharacters.length > 0) {
+                compositeUrl = await generateCompositeImage(state.mainPrompt, state.selectedStyle, true);
+                showToast('Image composite créée', 'success');
+            } else if (state.mode === 'image-to-video' && state.sourceImage) {
+                // Utiliser l'image source directement
+                compositeUrl = state.sourceImage;
+            } else {
+                // Pas de personnage ni image → générer une image de base
+                const style = STYLES.find(s => s.id === state.selectedStyle);
+                const basePrompt = state.mainPrompt + '. ' + style.prompt + '. Format: ' + state.format + ', high quality.';
+                compositeUrl = await generateImage(basePrompt, '2K', state.format);
+            }
+           
+            // ÉTAPE 2 : Générer la vidéo à partir de l'image composite
+            state.queue[0].status = 'processing';
+            state.queue[0].progress = 'Génération vidéo…';
+            renderQueue();
+            setStatus('Génération vidéo ' + state.videoSize + '…');
+           
+            const style = STYLES.find(s => s.id === state.selectedStyle);
+            const videoPrompt = `Animate this image as the starting frame. ` +
+                `Action: ${state.mainPrompt}. ` +
+                `Style: ${style.prompt}. ` +
+                `Movement: ${state.intensity === 'subtle' ? 'very subtle' : state.intensity === 'strong' ? 'dynamic' : 'moderate'}. ` +
+                `Format: ${state.format}, 24fps, high quality, no text.`;
+           
+            const result = await createVideoTask(videoPrompt, compositeUrl, String(state.duration), state.videoSize, 'keyframe');
+            const videoUrl = await pollVideo(result.videoId, result.model, (prog) => { state.queue[0].progress = prog; renderQueue(); });
+            addToGallery('video', videoUrl, 'Vidéo ' + state.videoSize + ' — ' + style.name);
+            state.queue[0].status = 'done';
+            showToast('Vidéo ' + state.videoSize + ' créée ✓', 'success');
+        }
+    } catch (e) {
+        if (e.message === 'Arrêt demandé') { state.queue[0].status = 'failed'; state.queue[0].progress = 'Arrêté'; }
+        else { state.queue[0].status = 'failed'; state.queue[0].progress = e.message.slice(0, 40); showToast('Erreur : ' + e.message.slice(0, 60), 'error', 4000); }
+    }
+
+    state.isRunning = false;
+    state.stopRequested = false;
+    document.getElementById('stop-btn').classList.remove('visible');
+    updateGenerateBtns();
+    renderQueue();
+    setStatus(null);
+}
+
+function stopGeneration() { if (!state.isRunning) return; state.stopRequested = true; setStatus('Arrêt en cours…'); }
+
+// ══════════════════════════════════════════════════════════════════
+// AGENT MODE — Avec workflow composite pour cohérence
+// ══════════════════════════════════════════════════════════════════
+async function generateAgentScenario(idea, duration, styleId) {
+    const sceneCount = Math.round(duration / 6);
+    const style = STYLES.find(s => s.id === styleId) || STYLES[0];
+    const prompt = `You are a film director. Create a storyboard for a ${duration}-second video.
+
+IDEA: ${idea}
+STYLE: ${style.prompt}
+FORMAT: 9:16 vertical.
+
+RULES:
+- Exactly ${sceneCount} scenes of ~6 seconds each.
+- Each scene must have: scene_number, image_prompt (detailed), action_prompt (what happens), emotion.
+- Visual consistency across all scenes.
+
+Return ONLY valid JSON:
+{
+  "title": "short title",
+  "logline": "one sentence",
+  "scenes": [
+    { "scene_number": 1, "image_prompt": "...", "action_prompt": "...", "emotion": "..." }
+  ]
+}`;
+    const res = await apiFetch(API_BASE + '/chat/completions', { method: 'POST', headers: { 'Authorization': 'Bearer ' + getApiKey(), 'Content-Type': 'application/json' }, body: JSON.stringify({ model: MODEL_TEXT, messages: [{ role: 'system', content: 'You return ONLY valid JSON.' }, { role: 'user', content: prompt }], temperature: 0.8, max_tokens: 6000 }) }, 'Scénario');
+    if (!res.ok) throw new Error('Erreur scénario HTTP ' + res.status);
+    const data = await res.json();
+    const content = data.choices?.[0]?.message?.content || '';
+    let json = content.replace(/```json/g, '').replace(/```/g, '').trim();
+    const firstBrace = json.indexOf('{');
+    if (firstBrace > 0) json = json.slice(firstBrace);
+    return JSON.parse(json);
+}
+
+async function runAgent() {
+    if (state.agent.isRunning) return;
+    if (!getApiKey()) { showToast('Ajoutez votre clé API', 'error'); return; }
+    const idea = document.getElementById('agent-idea').value.trim();
+    if (!idea) { showToast('Décrivez votre idée', 'error'); return; }
+
+    const duration = parseInt(document.getElementById('agent-duration').value);
+    const styleId = document.getElementById('agent-style').value;
+
+    state.agent.isRunning = true;
+    state.agent.stopRequested = false;
+    state.agent.scenes = [];
+    state.agent.images = [];
+    state.agent.videos = [];
+
+    document.getElementById('agent-stop-btn').classList.add('visible');
+    document.getElementById('agent-generate-btn').disabled = true;
+    document.getElementById('agent-progress').style.display = 'block';
+    document.getElementById('agent-gallery').style.display = 'none';
+
+    try {
+        // PHASE 1: Scenario
+        setStatus('✍️ L\'Agent écrit le scénario…');
+        const scenario = await generateAgentScenario(idea, duration, styleId);
+        const totalScenes = scenario.scenes.length;
+        showToast('Scénario : ' + (scenario.title || '') + ' (' + totalScenes + ' scènes)', 'success');
+
+        // PHASE 2: Composite Images (avec personnages si présents)
+        setStatus('🎨 L\'Agent crée les images composites…');
+        const imageUrls = [];
+        const imageStyle = STYLES.find(s => s.id === styleId) || STYLES[0];
+       
+        for (let i = 0; i < totalScenes; i++) {
+            if (state.agent.stopRequested) break;
+            try {
+                const scene = scenario.scenes[i];
+                let imgUrl;
+               
+                if (state.referenceCharacters.length > 0) {
+                    // Workflow composite avec personnages
+                    imgUrl = await generateCompositeImage(scene.image_prompt, styleId, true);
+                } else {
+                    // Génération directe
+                    const imgPrompt = scene.image_prompt + '. ' + imageStyle.prompt + '. Portrait 9:16, no text.';
+                    imgUrl = await generateImage(imgPrompt, '2K', '9:16');
+                }
+               
+                imageUrls[i] = imgUrl;
+                updateAgentProgress(i + 1, totalScenes, 'Images');
+            } catch (e) { console.warn('Image ' + i + ' échouée:', e.message); }
+           
+            // Respecter l'intervalle image
+            if (i < totalScenes - 1) await sleep(getImageInterval());
+        }
+        state.agent.images = imageUrls;
+
+        // PHASE 3: Videos
+        setStatus('🎬 L\'Agent génère les vidéos…');
+        const videoUrls = [];
+        for (let i = 0; i < totalScenes; i++) {
+            if (state.agent.stopRequested) break;
+            try {
+                const scene = scenario.scenes[i];
+                const imgUrl = imageUrls[i];
+                if (!imgUrl) continue;
+               
+                const videoPrompt = `Animate this image as the starting frame. ${scene.action_prompt}. ${imageStyle.prompt}. Portrait 9:16, 24fps, no text.`;
+                const result = await createVideoTask(videoPrompt, imgUrl, '6', '720P', 'keyframe');
+                const videoUrl = await pollVideo(result.videoId, result.model, (prog) => { updateAgentProgress(i, totalScenes, 'Vidéo ' + (i+1)); });
+                videoUrls.push(videoUrl);
+                addToGallery('video', videoUrl, 'Agent — Scène ' + (i + 1));
+            } catch (e) { console.warn('Video ' + i + ' échouée:', e.message); }
+           
+            // Respecter RPM vidéo (1/min)
+            if (i < totalScenes - 1 && !state.agent.stopRequested) {
+                setStatus('⏳ Prochaine scène dans 65s…');
+                await sleep(VIDEO_RPM_MS);
+            }
+        }
+        state.agent.videos = videoUrls;
+
+        setStatus('✦ Film terminé ✦');
+        showToast('Film généré : ' + videoUrls.length + '/' + totalScenes + ' scènes', 'success', 4000);
+        renderAgentGallery();
+    } catch (e) {
+        if (e.message === 'Arrêt demandé') { showToast('Agent arrêté', 'warn'); }
+        else { showToast('Erreur Agent : ' + e.message.slice(0, 60), 'error', 4000); }
+    }
+
+    state.agent.isRunning = false;
+    state.agent.stopRequested = false;
+    document.getElementById('agent-stop-btn').classList.remove('visible');
+    document.getElementById('agent-generate-btn').disabled = false;
+    setStatus(null);
+}
+
+function updateAgentProgress(done, total, label) {
+    const el = document.getElementById('agent-progress');
+    if (!el) return;
+    const pct = Math.round((done / total) * 100);
+    el.innerHTML = '<div class="queue-summary"><span class="progress-text">' + label + ' : ' + done + '/' + total + '</span><span class="eta-text">' + pct + '%</span></div><div style="height:6px;background:var(--panel-2);border-radius:3px;overflow:hidden;margin-top:0.3rem;"><div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,var(--gold),var(--rose-deep));transition:width 0.3s;"></div></div>';
+}
+
+function renderAgentGallery() {
+    const gallery = document.getElementById('agent-gallery');
+    const grid = document.getElementById('agent-gallery-grid');
+    if (!gallery || !grid) return;
+    if (!state.agent.videos.length) return;
+    gallery.style.display = 'block';
+    grid.innerHTML = state.agent.videos.map((url, i) => '<div class="gallery-item"><video src="' + url + '" controls playsinline preload="metadata"></video><div class="g-caption">Scène ' + (i + 1) + '</div></div>').join('');
+}
+
+function stopAgent() { if (!state.agent.isRunning) return; state.agent.stopRequested = true; setStatus('Arrêt de l\'Agent…'); }
+
+// ══════════════════════════════════════════════════════════════════
+// CHARACTERS
+// ══════════════════════════════════════════════════════════════════
+function loadCharacters() { try { const raw = localStorage.getItem(CHARACTERS_KEY); if (raw) state.referenceCharacters = JSON.parse(raw); } catch (e) { state.referenceCharacters = []; } }
+function saveCharacters() { try { localStorage.setItem(CHARACTERS_KEY, JSON.stringify(state.referenceCharacters.slice(-5))); } catch (e) {} }
+async function handleCharacterFiles(files) {
+    const list = Array.from(files).filter(f => f.type.startsWith('image/'));
+    const remaining = 5 - state.referenceCharacters.length;
+    const toAdd = list.slice(0, remaining);
+   
+    for (const file of toAdd) {
+        try { const dataUri = await fileToDataUri(file); state.referenceCharacters.push({ id: Date.now() + Math.random(), url: dataUri, name: file.name.replace(/\.[^.]+$/, '') }); } catch (e) {}
+    }
+    saveCharacters();
+    renderCharList();
+    showToast(state.referenceCharacters.length + ' personnage(s) sauvegardé(s) (max 5)', 'success');
+}
+function renderCharList() {
+    const list = document.getElementById('char-list');
+    if (!list) return;
+    list.innerHTML = state.referenceCharacters.map(c => '<div class="char-chip"><img src="' + c.url + '" class="char-img" alt=""><span class="char-name">' + esc(c.name) + '</span><button class="char-remove" data-char="' + c.id + '">✕</button></div>').join('');
+    list.querySelectorAll('[data-char]').forEach(btn => { btn.addEventListener('click', () => { const id = parseFloat(btn.dataset.char); state.referenceCharacters = state.referenceCharacters.filter(c => c.id !== id); saveCharacters(); renderCharList(); }); });
+}
+
+// ══════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════
+(function init() {
+    loadGallery(); renderGallery();
+    loadCharacters(); renderCharList();
+    updateApiPanel();
+    const keyInput = document.getElementById('api-key-input');
+    if (keyInput) { const savedKey = getApiKey(); if (savedKey) keyInput.value = savedKey; }
+    document.getElementById('api-save-btn')?.addEventListener('click', saveApiKey);
+    document.getElementById('api-key-input')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); saveApiKey(); } });
+
+    // Tabs
+    document.querySelectorAll('.tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); tab.classList.add('active'); document.getElementById('panel-' + tab.dataset.tab)?.classList.add('active'); }); });
+
+    // Section toggles
+    document.querySelectorAll('[data-toggle]').forEach(header => { header.addEventListener('click', () => { const section = document.getElementById(header.dataset.toggle); if (section) section.classList.toggle('open'); }); });
+
+    // Mode selection
+    document.querySelectorAll('.mode-card').forEach(card => {
+        card.addEventListener('click', () => {
+            document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            state.mode = card.dataset.mode;
+            const uploadSection = document.getElementById('section-upload');
+            const durationRow = document.getElementById('duration-row');
+            const videoQualityRow = document.getElementById('video-quality-row');
+            const imageQualityRow = document.getElementById('image-quality-row');
+            if (uploadSection) uploadSection.style.display = (state.mode === 'image-to-video') ? 'block' : 'none';
+            if (durationRow) durationRow.style.display = (state.mode === 'text-to-image') ? 'none' : 'block';
+            if (videoQualityRow) videoQualityRow.style.display = (state.mode === 'text-to-image') ? 'none' : 'block';
+            if (imageQualityRow) imageQualityRow.style.display = (state.mode === 'text-to-image') ? 'block' : 'none';
+        });
+    });
+
+    renderStyles();
+
+    // Form fields
+    document.getElementById('main-prompt')?.addEventListener('input', (e) => { state.mainPrompt = e.target.value; updateGenerateBtns(); });
+    document.getElementById('format-select')?.addEventListener('change', (e) => { state.format = e.target.value; });
+    document.getElementById('image-size-select')?.addEventListener('change', (e) => { state.imageSize = e.target.value; });
+    document.getElementById('video-size-select')?.addEventListener('change', (e) => { state.videoSize = e.target.value; });
+    document.getElementById('duration-select')?.addEventListener('change', (e) => { state.duration = parseInt(e.target.value, 10); });
+    document.getElementById('intensity-select')?.addEventListener('change', (e) => { state.intensity = e.target.value; });
+
+    // Upload
+    bindUploadZone();
+
+    // Generate buttons
+    document.getElementById('generate-btn')?.addEventListener('click', startGeneration);
+    document.getElementById('stop-btn')?.addEventListener('click', stopGeneration);
+    document.getElementById('agent-generate-btn')?.addEventListener('click', runAgent);
+    document.getElementById('agent-stop-btn')?.addEventListener('click', stopAgent);
+
+    // Agent idea input
+    document.getElementById('agent-idea')?.addEventListener('input', updateGenerateBtns);
+
+    // Characters
+    const charZone = document.getElementById('char-upload-zone');
+    const charInput = document.getElementById('char-file-input');
+    if (charZone && charInput) { charZone.addEventListener('click', () => charInput.click()); charInput.addEventListener('change', (e) => { handleCharacterFiles(e.target.files); charInput.value = ''; }); }
+
+    // Gallery filters
+    document.querySelectorAll('[data-filter]').forEach(btn => { btn.addEventListener('click', () => { renderGallery(btn.dataset.filter); }); });
+
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    themeToggle?.addEventListener('click', () => { document.body.classList.toggle('dark'); themeToggle.textContent = document.body.classList.contains('dark') ? '☀' : '☾'; try { localStorage.setItem('luxeai_theme', document.body.classList.contains('dark') ? 'dark' : 'light'); } catch (e) {} });
+    try { if (localStorage.getItem('luxeai_theme') === 'dark') { document.body.classList.add('dark'); if (themeToggle) themeToggle.textContent = '☀'; } } catch (e) {}
+
+    console.log('✦ LuxeAI v3 prêt ✦');
+    console.log('Modèles : Text ' + MODEL_TEXT + ' | Image ' + MODEL_IMAGE + ' | Video ' + MODEL_VIDEO_FLASH + ' (gratuit) / ' + MODEL_VIDEO_HD);
+    console.log('Workflow composite activé — personnages préservés');
+})();
+</script>
+
+</body>
+</html>
